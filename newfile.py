@@ -130,7 +130,7 @@ def main():
 # Function to format the analysis results
 def format_analysis_results(results):
     return (
-        f"🔍 Analysis Results for {results['url']}**\n"
+        f"🔍 Analysis Results for {results['url']}\n"
         f"---------------------------------\n"
         f"🌐 HTTP Status: {results['http_status']}\n"
         f"💳 Payment Gateway: {results['payment_gateway']}\n"
