@@ -130,17 +130,17 @@ def main():
 # Function to format the analysis results
 def format_analysis_results(results):
     return (
-        f"🔍 **Analysis Results for {results['url']}**\n"
+        f"🔍 Analysis Results for {results['url']}**\n"
         f"---------------------------------\n"
-        f"🌐 **HTTP Status:** {results['http_status']}\n"
-        f"💳 **Payment Gateway:** {results['payment_gateway']}\n"
-        f"☁️ **Cloudflare Detected:** {results['cloudflare']}\n"
-        f"🔒 **Captcha Detected:** {results['captcha']}\n"
-        f"🔎 **GraphQL Detected:** {results['graphql']}\n"
-        f"🛠 **Platform:** {results['platform']}\n"
-        f"📄 **Content Type:** {results['content_type']}\n"
-        f"🍪 **Cookies:** {results['cookies']}\n"
-        f"⚠️ **Error:** {results['error']}\n"
+        f"🌐 HTTP Status: {results['http_status']}\n"
+        f"💳 Payment Gateway: {results['payment_gateway']}\n"
+        f"☁ Cloudflare Detected: {results['cloudflare']}\n"
+        f"🔒 Captcha Detected: {results['captcha']}\n"
+        f"🔎 GraphQL Detected: {results['graphql']}\n"
+        f"🛠 Platform: {results['platform']}\n"
+        f"📄 Content Type: {results['content_type']}\n"
+        f"🍪 Cookies: {results['cookies']}\n"
+        f"⚠️ Error: {results['error']}\n"
     )
 
 # Run the bot
