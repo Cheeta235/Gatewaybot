@@ -2,7 +2,7 @@ import requests
 import time
 
 # Replace with your bot token
-TOKEN = '7151017248:AAGeiFWkffvqXMGoDcHP4dGtElA7GISUXBQ'
+TOKEN = '7151017248:AAHU96x-51Hxc6OI9ph0KhlKbVonU-7zH_w'
 URL = f'https://api.telegram.org/bot{TOKEN}/'
 
 # Functions to interact with Telegram API
