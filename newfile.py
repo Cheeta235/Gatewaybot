@@ -22,7 +22,8 @@ def analyze_site(url):
     result = {
         'url': url, 'payment_gateway': None, 'captcha': False, 
         'cloudflare': False, 'graphql': False, 'platform': None, 
-        'http_status': None, 'error': None
+        'http_status': None, 'content_type': None, 'cookies': {}, 
+        'error': None
     }
 
     try:
@@ -134,9 +135,9 @@ def format_analysis_results(results):
         f"---------------------------------\n"
         f"🌐 HTTP Status: {results['http_status']}\n"
         f"💳 Payment Gateway: {results['payment_gateway'] or 'None'}\n"
-        f"☁ Cloudflare Detected: {results['cloudflare']}\n"
-        f"🔒 Captcha Detected: {results['captcha']}\n"
-        f"🔎 GraphQL Detected: {results['graphql']}\n"
+        f"☁ Cloudflare Detected: {'Yes' if results['cloudflare'] else 'No'}\n"
+        f"🔒 Captcha Detected: {'Yes' if results['captcha'] else 'No'}\n"
+        f"🔎 GraphQL Detected: {'Yes' if results['graphql'] else 'No'}\n"
         f"🛠 Platform: {results['platform'] or 'Unknown'}\n"
         f"📄 Content Type: {results['content_type']}\n"
         f"🍪 Cookies: {results['cookies']}\n"
