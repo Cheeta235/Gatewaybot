@@ -64,7 +64,7 @@ def check_for_payment_gateway(headers, response_text, cookies):
     
     for keyword in gateway_keywords:
         if keyword in combined_text:
-            return f'💳 Payment Gateway Detected: {keyword.capitalize()}'
+            return keyword.capitalize()
 
     return None
 
@@ -129,19 +129,20 @@ def main():
 
 # Function to format the analysis results
 def format_analysis_results(results):
-    return (
+    analysis = (
         f"🔍 Analysis Results for {results['url']}\n"
         f"---------------------------------\n"
         f"🌐 HTTP Status: {results['http_status']}\n"
-        f"💳 Payment Gateway: {results['payment_gateway']}\n"
+        f"💳 Payment Gateway: {results['payment_gateway'] or 'None'}\n"
         f"☁ Cloudflare Detected: {results['cloudflare']}\n"
         f"🔒 Captcha Detected: {results['captcha']}\n"
         f"🔎 GraphQL Detected: {results['graphql']}\n"
-        f"🛠 Platform: {results['platform']}\n"
+        f"🛠 Platform: {results['platform'] or 'Unknown'}\n"
         f"📄 Content Type: {results['content_type']}\n"
         f"🍪 Cookies: {results['cookies']}\n"
-        f"⚠️ Error: {results['error']}\n"
+        f"⚠️ Error: {results['error'] or 'None'}\n"
     )
+    return analysis
 
 # Run the bot
 if __name__ == '__main__':
