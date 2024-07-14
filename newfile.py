@@ -294,7 +294,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-￼Enter        if any(marker in response_text.lower() for marker in markers):
+        if any(marker in response_text.lower() for marker in markers):
             return platform.capitalize()
 
     return None
