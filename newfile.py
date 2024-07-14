@@ -116,6 +116,7 @@ def check_for_platform(response_text):
 def format_analysis_results(results):
     analysis = (
         f"🔍 𝐒𝐈𝐓𝐄 𝐀𝐍𝐀𝐋𝐘𝐒𝐈𝐒 𝐑𝐄𝐒𝐔𝐋𝐓𝐒:\n"
+        f"𝐎𝐰𝐧𝐞𝐫: @cheetax1\n"
         f"𝐔𝐑𝐋: {results['url']}\n"
         f"𝐏𝐀𝐘𝐌𝐄𝐍𝐓 𝐆𝐀𝐓𝐄𝐖𝐀𝐘𝐒: {', '.join(results['payment_gateways']) if results['payment_gateways'] else 'None'}\n"
         f"𝐂𝐀𝐏𝐓𝐂𝐇𝐀: {'Yes' if results['captcha'] else 'No'}\n"
@@ -124,25 +125,36 @@ def format_analysis_results(results):
         f"𝐏𝐋𝐀𝐓𝐅𝐎𝐑𝐌: {results['platform'] or 'Unknown'}\n"
         f"𝐇𝐓𝐓𝐏 𝐒𝐓𝐀𝐓𝐔𝐒: {results['http_status']}\n"
         f"𝐂𝐎𝐔𝐍𝐓𝐑𝐘: {results['country']}\n"
-        f"⚠️ 𝐄𝐑𝐑𝐎𝐑: {results['error'] or 'None'}\n"
+        f"𝐄𝐑𝐑𝐎𝐑: {results['error'] or 'None'}\n"
     )
     return analysis
 
 # Command handlers
 def handle_url_command(chat_id, text):
-    if 'url_list' in context_data:
+    if text.startswith('/url '):
+        url = text.split(' ', 1)[1]
+        analyze_and_send(url, chat_id)
+    elif 'url_list' in context_data:
         with ThreadPoolExecutor(max_workers=10) as executor:
             results = executor.map(analyze_and_send, context_data['url_list'], [chat_id] * len(context_data['url_list']))
+        send_message(chat_id, '𝙖𝙡𝙡 𝙪𝙧𝙡𝙨 𝙝𝙖𝙫𝙚 𝙗𝙚𝙚𝙣 𝙘𝙝𝙚𝙘𝙠𝙚𝙙. 𝙛𝙤𝙧 𝙢𝙤𝙧𝙚 𝙗𝙤𝙩 𝙪𝙥𝙙𝙖𝙩𝙚𝙨, 𝙟𝙤𝙞𝙣 https://t.me/+T1NZ5uF968I2YTU1.')
     else:
-        send_message(chat_id, '⚠️ No URLs have been uploaded. Please upload a .txt file with URLs first.')
+        send_message(chat_id, '⚠️ 𝙉𝙊 𝙐𝙍𝙇𝙎 𝙃𝘼𝙑𝙀 𝘽𝙀𝙀𝙉 𝙐𝙋𝙇𝙊𝘼𝘿𝙀𝘿. 𝙋𝙇𝙀𝘼𝙎𝙀 𝙐𝙋𝙇𝙊𝘼𝘿 𝘼 .𝙏𝙓𝙏 𝙁𝙄𝙇𝙀 𝙒𝙄𝙏𝙃 𝙐𝙍𝙇𝙎 𝙁𝙄𝙍𝙎𝙏.')
 
 def handle_start_command(chat_id):
-    send_message(chat_id, '👋 Hi! I am your Website Analyzer Bot. Send me a .txt file with URLs, and then use /url to start analyzing. 🕵️‍♂️')
+    send_message(chat_id, '👋 𝙃𝙄! 𝙄 𝘼𝙈 𝙔𝙊𝙐𝙍 𝙒𝙀𝘽𝙎𝙄𝙏𝙀 𝘼𝙉𝘼𝙇𝙔𝙕𝙀𝙍 𝘽𝙊𝙏. 𝙎𝙀𝙉𝘿 𝙈𝙀 𝘼 .𝙏𝙓𝙏 𝙁𝙄𝙇𝙀 𝙒𝙄𝙏𝙃 𝙐𝙍𝙇𝙎, 𝘼𝙉𝘿 𝙏𝙃𝙀𝙉 𝙐𝙎𝙀 /𝙐𝙍𝙇 𝙏𝙊 𝙎𝙏𝘼𝙍𝙏 𝘼𝙉𝘼𝙇𝙔𝙕𝙄𝙉𝙂. 🕵️‍♂️')
 
 def handle_file(chat_id, file_content):
     urls = file_content.decode('utf-8').splitlines()
     context_data['url_list'] = [url.strip() for url in urls if url.strip()]
-    send_message(chat_id, "✅ URLs have been uploaded. Reply with /url to start the analysis.")
+    send_message(chat_id, "✅  𝙐𝙍𝙇𝙎 𝙃𝘼𝙑𝙀 𝘽𝙀𝙀𝙉 𝙐𝙋𝙇𝙊𝘼𝘿𝙀𝘿. 𝙍𝙀𝙋𝙇𝙔 𝙒𝙄𝙏𝙃 /𝙐𝙍𝙇 𝙏𝙊 𝙎𝙏𝘼𝙍𝙏 𝙏𝙃𝙀 𝘼𝙉𝘼𝙇𝙔𝙎𝙄𝙎.")
+
+def handle_cmds_command(chat_id):
+    commands = (
+        "/url - To Analyze URLs from the uploaded .txt file or analyze a single URL if provided as /url <link>.\n"
+        "/cmds - available commands and their descriptions."
+    )
+    send_message(chat_id, commands)
 
 def analyze_and_send(url, chat_id):
     result = analyze_site(url)
@@ -172,16 +184,16 @@ def main():
                         if text.startswith('/start'):
                             handle_start_command(chat_id)
                         elif text.startswith('/url'):
-                            handle_url_command(chat_id, text)
+                            handle_url_command(chat_id,
+                            text)
+                        elif text.startswith('/cmds'):
+                            handle_cmds_command(chat_id)
                     elif document:
                         file_id = document['file_id']
-                        file_info = requests.get(URL + 'getFile', params={'file_id': file_id}).json()
-                        file_path = file_info['result']['file_path']
-                        file_url = f'https://api.telegram.org/file/bot{TOKEN}/{file_path}'
-                        file_content = requests.get(file_url).content
+                        file_url = URL + f'getFile?file_id={file_id}'
+                        file_path = requests.get(file_url).json()['result']['file_path']
+                        file_content = requests.get(f'https://api.telegram.org/file/bot{TOKEN}/{file_path}').content
                         handle_file(chat_id, file_content)
-
-        time.sleep(1)
 
 if __name__ == '__main__':
     main()
