@@ -148,7 +148,7 @@ def handle_url_command(chat_id, text):
         send_message(chat_id, '⏳No URLs have been uploaded. Please Upload A. .txt file with urls first.')
 
 def handle_start_command(chat_id):
-    send_message(chat_id, '🤖 Bot Status: Active ✅\n\n💀 Send .txt File with URLs Then use /url. For Manual checking Use /url <link>\n\n⚡ Join @VetranChat lfor more bot updates 🇮🇳\n\n✨ Created with pride by @cheetax1')
+    send_message(chat_id, '🤖 Bot Status: Active ✅\n\n💀 Send .txt File with URLs Then use /url. For Manual checking Use /url <link>\n\n⚡ Join @VetranChat for more bot updates \n\n✨ Created with pride by @cheetax1🇮🇳')
 
 def handle_file(chat_id, file_content):
     urls = file_content.decode('utf-8').splitlines()
