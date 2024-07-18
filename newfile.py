@@ -47,13 +47,19 @@ def analyze_site(url):
         cookies = response.cookies.get_dict()
         country = headers.get('CF-IPCountry', 'Unknown')
 
+        # Extract HTTP version and status code with reason phrase
+        http_version = 'HTTP/1.1' if response.raw.version == 11 else 'HTTP/1.0'
+        status_code = response.status_code
+        reason_phrase = response.reason
+        http_status = f"{http_version} {status_code} {reason_phrase}"
+
         result.update({
             'payment_gateways': check_for_payment_gateways(headers, response_text, cookies),
             'cloudflare': check_for_cloudflare(response_text),
             'captcha': check_for_captcha(response_text),
             'graphql': check_for_graphql(response_text),
             'platform': check_for_platform(response_text),
-            'http_status': f"{response.raw.version} {response.status_code} {response.reason}",
+            'http_status': http_status,
             'content_type': content_type,
             'cookies': cookies,
             'country': country
@@ -115,17 +121,17 @@ def check_for_platform(response_text):
 # Function to format the analysis results
 def format_analysis_results(results):
     analysis = (
-        f"🔍 𝐒𝐈𝐓𝐄 𝐀𝐍𝐀𝐋𝐘𝐒𝐈𝐒 𝐑𝐄𝐒𝐔𝐋𝐓𝐒:\n"
-        f"𝐎𝐰𝐧𝐞𝐫: @cheetax1\n"
-        f"𝐔𝐑𝐋: {results['url']}\n"
-        f"𝐏𝐀𝐘𝐌𝐄𝐍𝐓 𝐆𝐀𝐓𝐄𝐖𝐀𝐘𝐒: {', '.join(results['payment_gateways']) if results['payment_gateways'] else 'None'}\n"
-        f"𝐂𝐀𝐏𝐓𝐂𝐇𝐀: {'Yes' if results['captcha'] else 'No'}\n"
-        f"𝐂𝐋𝐎𝐔𝐃𝐅𝐋𝐀𝐑𝐄: {'Yes' if results['cloudflare'] else 'No'}\n"
-        f"𝐆𝐑𝐀𝐏𝐇𝐐𝐋 𝐃𝐄𝐓𝐄𝐂𝐓𝐄𝐃: {'Yes' if results['graphql'] else 'No'}\n"
-        f"𝐏𝐋𝐀𝐓𝐅𝐎𝐑𝐌: {results['platform'] or 'Unknown'}\n"
-        f"𝐇𝐓𝐓𝐏 𝐒𝐓𝐀𝐓𝐔𝐒: {results['http_status']}\n"
-        f"𝐂𝐎𝐔𝐍𝐓𝐑𝐘: {results['country']}\n"
-        f"𝐄𝐑𝐑𝐎𝐑: {results['error'] or 'None'}\n"
+        f"🔍 𝗦𝗜𝗧𝗘 𝗔𝗡𝗔𝗟𝗬𝗦𝗜𝗦 𝗥𝗘𝗦𝗨𝗟𝗧𝗦:\n"
+        f"『𝗢𝗪𝗡𝗘𝗥』➜ @cheetax1\n"
+        f"𝗨𝗥𝗟 ➜ {results['url']}\n"
+        f"𝗣𝗔𝗬𝗠𝗘𝗡𝗧 𝗚𝗔𝗧𝗘𝗪𝗔𝗬𝗦 ➜ {', '.join(results['payment_gateways']) if results['payment_gateways'] else 'None'}\n"
+        f"𝗖𝗔𝗣𝗧𝗖𝗛𝗔 ➜ {'Yes' if results['captcha'] else 'No'}\n"
+        f"𝗖𝗟𝗢𝗨𝗗𝗙𝗟𝗔𝗥𝗘 ➜ {'Yes' if results['cloudflare'] else 'No'}\n"
+        f"𝗚𝗥𝗔𝗣𝗛𝗤𝗟 𝗗𝗘𝗧𝗘𝗖𝗧𝗘𝗗 ➜ {'Yes' if results['graphql'] else 'No'}\n"
+        f"𝗣𝗟𝗔𝗧𝗙𝗢𝗥𝗠 ➜  {results['platform'] or 'Unknown'}\n"
+        f"𝗛𝗧𝗧𝗣 𝗦𝗧𝗔𝗧𝗨𝗦 ➜ {results['http_status']}\n"
+        f"𝗖𝗢𝗨𝗡𝗧𝗥𝗬 ➜ {results['country']}\n"
+        f"𝗘𝗥𝗥𝗢𝗥 ➜ {results['error'] or 'None'}\n"
     )
     return analysis
 
@@ -139,15 +145,15 @@ def handle_url_command(chat_id, text):
             results = executor.map(analyze_and_send, context_data['url_list'], [chat_id] * len(context_data['url_list']))
         send_message(chat_id, '𝙖𝙡𝙡 𝙪𝙧𝙡𝙨 𝙝𝙖𝙫𝙚 𝙗𝙚𝙚𝙣 𝙘𝙝𝙚𝙘𝙠𝙚𝙙. 𝙛𝙤𝙧 𝙢𝙤𝙧𝙚 𝙗𝙤𝙩 𝙪𝙥𝙙𝙖𝙩𝙚𝙨, 𝙟𝙤𝙞𝙣 https://t.me/+T1NZ5uF968I2YTU1.')
     else:
-        send_message(chat_id, '⚠️ 𝙉𝙊 𝙐𝙍𝙇𝙎 𝙃𝘼𝙑𝙀 𝘽𝙀𝙀𝙉 𝙐𝙋𝙇𝙊𝘼𝘿𝙀𝘿. 𝙋𝙇𝙀𝘼𝙎𝙀 𝙐𝙋𝙇𝙊𝘼𝘿 𝘼 .𝙏𝙓𝙏 𝙁𝙄𝙇𝙀 𝙒𝙄𝙏𝙃 𝙐𝙍𝙇𝙎 𝙁𝙄𝙍𝙎𝙏.')
+        send_message(chat_id, '⏳No URLs have been uploaded. Please Upload A. .txt file with urls first.')
 
 def handle_start_command(chat_id):
-    send_message(chat_id, '👋 𝙃𝙄! 𝙄 𝘼𝙈 𝙔𝙊𝙐𝙍 𝙒𝙀𝘽𝙎𝙄𝙏𝙀 𝘼𝙉𝘼𝙇𝙔𝙕𝙀𝙍 𝘽𝙊𝙏. 𝙎𝙀𝙉𝘿 𝙈𝙀 𝘼 .𝙏𝙓𝙏 𝙁𝙄𝙇𝙀 𝙒𝙄𝙏𝙃 𝙐𝙍𝙇𝙎, 𝘼𝙉𝘿 𝙏𝙃𝙀𝙉 𝙐𝙎𝙀 /𝙐𝙍𝙇 𝙏𝙊 𝙎𝙏𝘼𝙍𝙏 𝘼𝙉𝘼𝙇𝙔𝙕𝙄𝙉𝙂. 🕵️‍♂️')
+    send_message(chat_id, '🤖 Bot Status: Active ✅\n\n💀 Send .txt File with URLs Then use /url. For Manual checking Use /url <link>\n\n⚡ Join @VetranChat lfor more bot updates 🇮🇳\n\n✨ Created with pride by @cheetax1')
 
 def handle_file(chat_id, file_content):
     urls = file_content.decode('utf-8').splitlines()
     context_data['url_list'] = [url.strip() for url in urls if url.strip()]
-    send_message(chat_id, "✅  𝙐𝙍𝙇𝙎 𝙃𝘼𝙑𝙀 𝘽𝙀𝙀𝙉 𝙐𝙋𝙇𝙊𝘼𝘿𝙀𝘿. 𝙍𝙀𝙋𝙇𝙔 𝙒𝙄𝙏𝙃 /𝙐𝙍𝙇 𝙏𝙊 𝙎𝙏𝘼𝙍𝙏 𝙏𝙃𝙀 𝘼𝙉𝘼𝙇𝙔𝙎𝙄𝙎.")
+    send_message(chat_id, "🌿URLs have been uploaded. Reply with /url To start The analysis.")
 
 def handle_cmds_command(chat_id):
     commands = (
