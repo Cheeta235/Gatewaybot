@@ -14,7 +14,7 @@ MAX_MESSAGE_LENGTH = 4096
 # Functions to interact with Telegram API
 def get_updates(offset=None):
     url = URL + 'getUpdates'
-    params = {'timeout': 100, 'offset': offset}
+    params = {'timeout': 50, 'offset': offset}
     response = requests.get(url, params=params)
     return response.json()
 
@@ -141,9 +141,7 @@ def handle_url_command(chat_id, text):
         url = text.split(' ', 1)[1]
         analyze_and_send(url, chat_id)
     elif 'url_list' in context_data:
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            results = executor.map(analyze_and_send, context_data['url_list'], [chat_id] * len(context_data['url_list']))
-        send_message(chat_id, '𝙖𝙡𝙡 𝙪𝙧𝙡𝙨 𝙝𝙖𝙫𝙚 𝙗𝙚𝙚𝙣 𝙘𝙝𝙚𝙘𝙠𝙚𝙙. 𝙛𝙤𝙧 𝙢𝙤𝙧𝙚 𝙗𝙤𝙩 𝙪𝙥𝙙𝙖𝙩𝙚𝙨, 𝙟𝙤𝙞𝙣 https://t.me/+T1NZ5uF968I2YTU1.')
+        process_url_batches(chat_id, context_data['url_list'])
     else:
         send_message(chat_id, '⏳No URLs have been uploaded. Please Upload A. .txt file with urls first.')
 
@@ -168,6 +166,12 @@ def analyze_and_send(url, chat_id):
     messages = split_message(analysis)
     for message in messages:
         send_message(chat_id, message)
+        time.sleep(2)  # Delay to handle rate limits
+
+def process_url_batches(chat_id, url_list):
+    for url in url_list:
+        analyze_and_send(url, chat_id)
+        time.sleep(2)  # Delay between checks
 
 # Initialize context and user data
 context_data = {}
@@ -180,26 +184,27 @@ def main():
         if 'result' in updates:
             for update in updates['result']:
                 offset = update['update_id'] + 1
+                
                 if 'message' in update:
-                    message = update['message']
-                    chat_id = message['chat']['id']
-                    text = message.get('text')
-                    document = message.get('document')
+                    chat_id = update['message']['chat']['id']
+                    text = update['message'].get('text')
+                    document = update['message'].get('document')
 
                     if text:
                         if text.startswith('/start'):
                             handle_start_command(chat_id)
                         elif text.startswith('/url'):
-                            handle_url_command(chat_id,
-                            text)
+                            handle_url_command(chat_id, text)
                         elif text.startswith('/cmds'):
                             handle_cmds_command(chat_id)
                     elif document:
                         file_id = document['file_id']
-                        file_url = URL + f'getFile?file_id={file_id}'
-                        file_path = requests.get(file_url).json()['result']['file_path']
-                        file_content = requests.get(f'https://api.telegram.org/file/bot{TOKEN}/{file_path}').content
+                        file_info = requests.get(URL + 'getFile', params={'file_id': file_id}).json()
+                        file_path = file_info['result']['file_path']
+                        file_url = f'https://api.telegram.org/file/bot{TOKEN}/{file_path}'
+                        file_content = requests.get(file_url).content
                         handle_file(chat_id, file_content)
 
 if __name__ == '__main__':
     main()
+
