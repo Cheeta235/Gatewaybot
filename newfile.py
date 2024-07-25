@@ -3,13 +3,15 @@ import time
 from datetime import datetime, timedelta
 from io import BytesIO
 from concurrent.futures import ThreadPoolExecutor
-import random
-import string
+import threading
 
 # Replace with your bot token
 TOKEN = '7040333422:AAE_WUPYhjauw0VA5Ms7V5IA8OgtxjOCqv0'
 URL = f'https://api.telegram.org/bot{TOKEN}/'
 MAX_MESSAGE_LENGTH = 4096
+
+# Lock for thread-safe operations on shared resources
+lock = threading.Lock()
 
 # Functions to interact with Telegram API
 def get_updates(offset=None):
@@ -140,23 +142,24 @@ def handle_url_command(chat_id, text):
     if text.startswith('/url '):
         url = text.split(' ', 1)[1]
         analyze_and_send(url, chat_id)
-    elif 'url_list' in context_data:
-        process_url_batches(chat_id, context_data['url_list'])
+    elif 'url_list' in context_data.get(chat_id, {}):
+        process_url_batches(chat_id, context_data[chat_id]['url_list'])
     else:
-        send_message(chat_id, '⏳No URLs have been uploaded. Please Upload A. .txt file with urls first.')
+        send_message(chat_id, '⏳No URLs have been uploaded. Please upload a .txt file with URLs first.')
 
 def handle_start_command(chat_id):
     send_message(chat_id, '🤖 Bot Status: Active ✅\n\n💀 Send .txt File with URLs Then use /url. For Manual checking Use /url <link>\n\n⚡ Join @VetranChat for more bot updates \n\n✨ Created with pride by @cheetax1🇮🇳')
 
 def handle_file(chat_id, file_content):
     urls = file_content.decode('utf-8').splitlines()
-    context_data['url_list'] = [url.strip() for url in urls if url.strip()]
-    send_message(chat_id, "🌿URLs have been uploaded. Reply with /url To start The analysis.")
+    with lock:
+        context_data[chat_id] = {'url_list': [url.strip() for url in urls if url.strip()]}
+    send_message(chat_id, "🌿URLs have been uploaded. Reply with /url to start the analysis.")
 
 def handle_cmds_command(chat_id):
     commands = (
-        "/url - To Analyze URLs from the uploaded .txt file or analyze a single URL if provided as /url <link>.\n"
-        "/cmds - available commands and their descriptions."
+        "/url - To analyze URLs from the uploaded .txt file or analyze a single URL if provided as /url <link>.\n"
+        "/cmds - Available commands and their descriptions."
     )
     send_message(chat_id, commands)
 
@@ -194,7 +197,8 @@ def main():
                         if text.startswith('/start'):
                             handle_start_command(chat_id)
                         elif text.startswith('/url'):
-                            handle_url_command(chat_id, text)
+                            thread = threading.Thread(target=handle_url_command, args=(chat_id, text))
+                            thread.start()
                         elif text.startswith('/cmds'):
                             handle_cmds_command(chat_id)
                     elif document:
@@ -207,4 +211,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
