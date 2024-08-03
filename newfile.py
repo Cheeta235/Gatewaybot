@@ -151,7 +151,17 @@ def handle_start_command(chat_id):
     send_message(chat_id, '🤖 Bot Status: Active ✅\n\n💀 Send .txt File with URLs Then use /url. For Manual checking Use /url <link>\n\n⚡ Join @VetranChat for more bot updates \n\n✨ Created with pride by @cheetax1🇮🇳')
 
 def handle_file(chat_id, file_content):
-    urls = file_content.decode('utf-8').splitlines()
+    encodings = ['utf-8', 'latin-1', 'windows-1252']
+    for encoding in encodings:
+        try:
+            urls = file_content.decode(encoding).splitlines()
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        send_message(chat_id, "❌ Error: Unable to decode file content. Please make sure the file is encoded in UTF-8, Latin-1, or Windows-1252.")
+        return
+    
     with lock:
         context_data[chat_id] = {'url_list': [url.strip() for url in urls if url.strip()]}
     send_message(chat_id, "🌿URLs have been uploaded. Reply with /url to start the analysis.")
